@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DateTimePicker</string>
+    <string name="placeholder_date">DD.MM.YYYY</string>
+    <string name="placeholder_time">HH:MM</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="button_save">Сохранить</string>
+</resources>
