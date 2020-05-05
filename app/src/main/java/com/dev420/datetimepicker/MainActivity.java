@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // минимальный год установлен 2020. можно переделать и создавать изначально массив начиная с текущего года
+    // минимальный год установлен 2015. можно переделать и создавать изначально массив начиная с текущего года
     private void setCurrentDateAndTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         int currentMinute = calendar.get(Calendar.MINUTE);
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         rvHour.scrollToPosition(currentHour);
         int currentYear = calendar.get(Calendar.YEAR);
         //скролл сделал на случай, если понадобится DateTimePicker с прошлыми годами
-        int startYearInArray = 2020;
+        int startYearInArray = 2015;
         rvYear.scrollToPosition(currentYear - startYearInArray);
         yearAdapter.changeItemAppearance(currentYear - startYearInArray);
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         hours = new ArrayList<>(Arrays.asList("", ""));
         minutes = new ArrayList<>(Arrays.asList("", ""));
 
-        for (int i = 2020; i <= 2050; i++) {
+        for (int i = 2015; i <= 2050; i++) {
             years.add(Integer.toString(i));
         }
         years.add("");
