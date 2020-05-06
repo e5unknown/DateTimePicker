@@ -24,7 +24,8 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
     }
 
     public void setData(ArrayList<String> data) {
-        this.data = data;
+        this.data.clear();
+        this.data.addAll(data);
         notifyDataSetChanged();
     }
 
