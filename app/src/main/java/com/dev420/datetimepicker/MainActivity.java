@@ -8,12 +8,9 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.content.Context;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
+import android.os.Handler;
+import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -61,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
     private CardView buttonCancel;
     private CardView buttonSave;
 
+    //костыли или реализация щелчков
+    private int currentMinPosition;
+    private int currentHourPosition;
+    private int currentDayPosition;
+    private int currentMonthPosition;
+    private int currentYearPosition;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,8 +72,14 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initDateAndTimeData();
         setCurrentDateAndTime();
-        setRVScrollListeners();
-        setSnapSound();
+        Handler handler = new Handler();
+        //Костыли, чтобы при прокручивании пикера до текущего времени не производилась куча щелчков
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setRVScrollListeners();
+            }
+        }, 500);
     }
 
 
@@ -86,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
         rvYear.scrollToPosition(currentYear - startYearInArray);
         yearAdapter.changeItemAppearance(currentYear - startYearInArray);
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
-        Log.i("WTF", currentMonth + "");
         rvMonth.scrollToPosition(currentMonth - 1);
         monthAdapter.changeItemAppearance(currentMonth - 1);
         generateDaysArray(currentMonth, currentYear);
@@ -97,16 +106,6 @@ public class MainActivity extends AppCompatActivity {
         tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentHour, currentMinute));
     }
 
-    //Устанавливаем звуки щелчков на перелистывание. Может, есть и лучший вариант, чем втыкать
-    //в каждый am в каждый адаптер, пока лучший из придуманных мной.
-    private void setSnapSound() {
-        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        minuteAdapter.setSnapSound(am);
-        hourAdapter.setSnapSound(am);
-        dayAdapter.setSnapSound(am);
-        monthAdapter.setSnapSound(am);
-        yearAdapter.setSnapSound(am);
-    }
 
     private void initUI() {
         llDate = findViewById(R.id.llDate);
@@ -215,6 +214,12 @@ public class MainActivity extends AppCompatActivity {
         hourAdapter.setData(hours);
         minuteAdapter.setData(minutes);
         generateDaysArray(0, 2020);
+        //init костыли
+        currentMinPosition = 0;
+        currentHourPosition = 0;
+        currentDayPosition = 0;
+        currentMonthPosition = 0;
+        currentYearPosition = 0;
     }
 
     public void resetDaysArray() {
@@ -222,7 +227,6 @@ public class MainActivity extends AppCompatActivity {
         int monthPosition = monthLM.findFirstCompletelyVisibleItemPosition();
         //к выдаче по годам добавим 2, чтобы учесть 2 пустых элемента в массиве и получить верный год
         int yearPosition = yearLM.findFirstCompletelyVisibleItemPosition() + 2;
-        Log.i("WTF", yearPosition + "");
         int year = Integer.parseInt(years.get(yearPosition));
         generateDaysArray(monthPosition, year);
     }
@@ -261,7 +265,11 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = dayLM.findFirstCompletelyVisibleItemPosition();
-                dayAdapter.changeItemAppearance(firstVisible);
+                if (currentDayPosition != firstVisible){
+                    currentDayPosition = firstVisible;
+                    dayAdapter.changeItemAppearance(firstVisible);
+                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                }
             }
         });
 
@@ -277,8 +285,11 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = monthLM.findFirstCompletelyVisibleItemPosition();
-                monthAdapter.changeItemAppearance(firstVisible);
-
+                if (currentMonthPosition != firstVisible){
+                    currentMonthPosition = firstVisible;
+                    monthAdapter.changeItemAppearance(firstVisible);
+                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                }
             }
         });
 
@@ -295,7 +306,11 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = yearLM.findFirstCompletelyVisibleItemPosition();
-                yearAdapter.changeItemAppearance(firstVisible);
+                if (currentYearPosition != firstVisible){
+                    currentYearPosition = firstVisible;
+                    yearAdapter.changeItemAppearance(firstVisible);
+                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                }
             }
         });
 
@@ -304,16 +319,25 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = hourLM.findFirstCompletelyVisibleItemPosition();
-                hourAdapter.changeItemAppearance(firstVisible);
+                if (currentHourPosition != firstVisible){
+                    currentHourPosition = firstVisible;
+                    hourAdapter.changeItemAppearance(firstVisible);
+                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                }
             }
         });
+
 
         rvMinute.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = minuteLM.findFirstCompletelyVisibleItemPosition();
-                minuteAdapter.changeItemAppearance(firstVisible);
+                if (currentMinPosition != firstVisible){
+                    currentMinPosition = firstVisible;
+                    minuteAdapter.changeItemAppearance(firstVisible);
+                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                }
             }
         });
     }
@@ -360,6 +384,5 @@ public class MainActivity extends AppCompatActivity {
         }
         minutes.add("");
         minutes.add("");
-
     }
 }

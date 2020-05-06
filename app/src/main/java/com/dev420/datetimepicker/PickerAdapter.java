@@ -1,7 +1,5 @@
 package com.dev420.datetimepicker;
 
-import android.content.Context;
-import android.media.AudioManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,22 +10,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import static com.dev420.datetimepicker.R.color.colorPrimary;
-
 public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerViewHolder> {
 
     private ArrayList<String> data;
     private int firstVisible = 0;
-    private AudioManager am;
 
     public PickerAdapter() {
         this.data = new ArrayList<>();
-    }
-
-    //устанавливает звуки щелчков
-    public void setSnapSound(AudioManager am) {
-        this.am = am;
-        float vol = 0.5f;
     }
 
     public ArrayList<String> getData() {
@@ -49,15 +38,15 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
     @Override
     public void onBindViewHolder(@NonNull PickerViewHolder holder, int position) {
         holder.tvDateOrTimeItem.setText(data.get(position));
-        if (position == firstVisible || position == firstVisible+4){
+        if (position == firstVisible || position == firstVisible + 4) {
             holder.tvDateOrTimeItem.setAlpha(0.3f);
             holder.tvDateOrTimeItem.setTextColor(holder.itemView.getResources().getColor(R.color.textColorPrimary));
         }
-        if (position == firstVisible+1 || position == firstVisible+3){
+        if (position == firstVisible + 1 || position == firstVisible + 3) {
             holder.tvDateOrTimeItem.setAlpha(1f);
             holder.tvDateOrTimeItem.setTextColor(holder.itemView.getResources().getColor(R.color.textColorPrimary));
         }
-        if (position == firstVisible+2){
+        if (position == firstVisible + 2) {
             holder.tvDateOrTimeItem.setAlpha(1f);
             holder.tvDateOrTimeItem.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimary));
         }
@@ -72,15 +61,14 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
     public void changeItemAppearance(int position) {
         if (firstVisible != position) {
             firstVisible = position;
+            notifyItemChanged(firstVisible);
             notifyDataSetChanged();
-            if (am != null) {
-                am.playSoundEffect(AudioManager.FX_KEY_CLICK);
-            }
         }
     }
 
-    class PickerViewHolder extends RecyclerView.ViewHolder{
+    class PickerViewHolder extends RecyclerView.ViewHolder {
         private TextView tvDateOrTimeItem;
+
         private PickerViewHolder(@NonNull View itemView) {
             super(itemView);
             tvDateOrTimeItem = itemView.findViewById(R.id.tvDateOrTimeItem);
