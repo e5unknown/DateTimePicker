@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
         rvMonth.scrollToPosition(currentMonth - 1);
         monthAdapter.changeItemAppearance(currentMonth - 1);
-        generateDaysArray(currentMonth, currentYear);
+        generateDaysArray(currentMonth - 1, currentYear);
         int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
         rvDay.scrollToPosition(currentDay - 1);
         dayAdapter.changeItemAppearance(currentDay - 1);
@@ -250,13 +250,15 @@ public class MainActivity extends AppCompatActivity {
                 daysCount = 31;
                 break;
         }
-        days = new ArrayList<>(Arrays.asList("", ""));
-        for (int i = 1; i <= daysCount; i++) {
-            days.add(String.format(Locale.getDefault(), "%02d", i));
+        if (days == null || days.size() != daysCount+4) {
+            days = new ArrayList<>(Arrays.asList("", ""));
+            for (int i = 1; i <= daysCount; i++) {
+                days.add(String.format(Locale.getDefault(), "%02d", i));
+            }
+            days.add("");
+            days.add("");
+            dayAdapter.setData(days);
         }
-        days.add("");
-        days.add("");
-        dayAdapter.setData(days);
     }
 
 
