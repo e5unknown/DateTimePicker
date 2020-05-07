@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     private int currentMonthPosition;
     private int currentYearPosition;
 
+    private SoundPool sounds;
+    private int soundId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,14 +87,27 @@ public class MainActivity extends AppCompatActivity {
         initDateAndTimeData();
         startYearInArray = 2015;
         setCurrentDateAndTime();
-        Handler handler = new Handler();
-        //Костыли, чтобы при прокручивании пикера до текущего времени не производилась куча щелчков
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setRVScrollListeners();
-            }
-        }, 500);
+        setRVScrollListeners();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sounds.release();
+        sounds = null;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AudioAttributes attributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        sounds = new SoundPool.Builder()
+                .setAudioAttributes(attributes)
+                .build();
+        soundId = sounds.load(this, R.raw.snap1, 1);
     }
 
     // минимальный год установлен 2015. можно переделать и создавать изначально массив начиная с текущего года
@@ -103,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         currentHourPosition = calendar.get(Calendar.HOUR_OF_DAY);
         rvHour.scrollToPosition(currentHourPosition);
         hourAdapter.changeItemAppearance(currentHourPosition);
-        currentYearPosition = calendar.get(Calendar.YEAR)- startYearInArray;
+        currentYearPosition = calendar.get(Calendar.YEAR) - startYearInArray;
         rvYear.scrollToPosition(currentYearPosition);
         yearAdapter.changeItemAppearance(currentYearPosition);
         currentMonthPosition = calendar.get(Calendar.MONTH);
@@ -184,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String builder = "Saved: " +
                         currentHourPosition + ":" + currentMinutePosition + " " +
-                        (currentDayPosition+1) + "." + (currentMonthPosition + 1) + "." +
+                        (currentDayPosition + 1) + "." + (currentMonthPosition + 1) + "." +
                         (currentYearPosition + startYearInArray);
                 Toast.makeText(MainActivity.this, builder, Toast.LENGTH_SHORT).show();
             }
@@ -261,16 +277,15 @@ public class MainActivity extends AppCompatActivity {
             days.subList(startIndex, lastIndex).clear();
             dayAdapter.notifyItemRangeRemoved(startIndex, count);
         }
-        Log.i(TAG, dayPosition+ " " + daysCount);
-        if (dayPosition + 1 > daysCount){
+        if (dayPosition + 1 > daysCount) {
             dayPosition = dayPosition - (dayPosition + 1 - daysCount);
-            Log.i(TAG, "new dayPos:" + dayPosition);
         }
         dayAdapter.changeItemAppearance(dayPosition);
     }
 
     private void setRVScrollListeners() {
-        final Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
         rvDay.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -279,10 +294,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentDayPosition != firstVisible) {
                     currentDayPosition = firstVisible;
                     dayAdapter.changeItemAppearance(firstVisible);
-                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    sounds.play(soundId,0.3f,0.3f,1,0,1);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                    } else{
+                    } else {
                         v.vibrate(10);
                     }
                     updateDateInHeader();
@@ -297,7 +312,6 @@ public class MainActivity extends AppCompatActivity {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     resetDaysArray(currentMonthPosition,
                             currentYearPosition + startYearInArray, currentDayPosition);
-                    Log.i(TAG, "IDLE month");
                 }
             }
 
@@ -308,10 +322,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentMonthPosition != firstVisible) {
                     currentMonthPosition = firstVisible;
                     monthAdapter.changeItemAppearance(firstVisible);
-                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    sounds.play(soundId,0.3f,0.3f,1,0,1);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                    } else{
+                    } else {
                         v.vibrate(50);
                     }
                     updateDateInHeader();
@@ -336,10 +350,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentYearPosition != firstVisible) {
                     currentYearPosition = firstVisible;
                     yearAdapter.changeItemAppearance(firstVisible);
-                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    sounds.play(soundId,0.3f,0.3f,1,0,1);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                    } else{
+                    } else {
                         v.vibrate(50);
                     }
                     updateDateInHeader();
@@ -355,10 +369,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentHourPosition != firstVisible) {
                     currentHourPosition = firstVisible;
                     hourAdapter.changeItemAppearance(firstVisible);
-                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    sounds.play(soundId,0.3f,0.3f,1,0,1);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                    } else{
+                    } else {
                         v.vibrate(50);
                     }
                     updateTimeInHeader();
@@ -375,10 +389,10 @@ public class MainActivity extends AppCompatActivity {
                 if (currentMinutePosition != firstVisible) {
                     currentMinutePosition = firstVisible;
                     minuteAdapter.changeItemAppearance(firstVisible);
-                    recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    sounds.play(soundId,0.3f,0.3f,1,0,1);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                    } else{
+                    } else {
                         v.vibrate(50);
                     }
                     updateTimeInHeader();
@@ -387,12 +401,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateDateInHeader(){
-        tvDate.setText(String.format(Locale.getDefault(), "%02d.%02d.%02d", currentDayPosition+1,
-                currentMonthPosition+1, currentYearPosition+startYearInArray));
+    private void updateDateInHeader() {
+        tvDate.setText(String.format(Locale.getDefault(), "%02d.%02d.%02d", currentDayPosition + 1,
+                currentMonthPosition + 1, currentYearPosition + startYearInArray));
     }
 
-    private void updateTimeInHeader(){
+    private void updateTimeInHeader() {
         tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentHourPosition
                 , currentMinutePosition));
     }

@@ -1,6 +1,5 @@
 package com.dev420.datetimepicker;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

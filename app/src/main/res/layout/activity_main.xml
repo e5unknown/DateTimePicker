@@ -92,6 +92,7 @@
                 android:id="@+id/rvDay"
                 android:layout_width="85dp"
                 android:layout_height="250dp"
+                android:overScrollMode="never"
                 app:layout_constraintEnd_toStartOf="@id/rvMonth"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/llDateAndTime" />
@@ -100,6 +101,7 @@
                 android:id="@+id/rvMonth"
                 android:layout_width="85dp"
                 android:layout_height="250dp"
+                android:overScrollMode="never"
                 app:layout_constraintEnd_toStartOf="@id/rvYear"
                 app:layout_constraintStart_toEndOf="@id/rvDay"
                 app:layout_constraintTop_toBottomOf="@id/llDateAndTime" />
@@ -108,6 +110,7 @@
                 android:id="@+id/rvYear"
                 android:layout_width="85dp"
                 android:layout_height="250dp"
+                android:overScrollMode="never"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/rvMonth"
                 app:layout_constraintTop_toBottomOf="@id/llDateAndTime" />
@@ -116,6 +119,7 @@
                 android:id="@+id/rvHour"
                 android:layout_width="85dp"
                 android:layout_height="250dp"
+                android:overScrollMode="never"
                 android:visibility="invisible"
                 app:layout_constraintEnd_toStartOf="@id/rvMinute"
                 app:layout_constraintStart_toStartOf="parent"
@@ -125,6 +129,7 @@
                 android:id="@+id/rvMinute"
                 android:layout_width="85dp"
                 android:layout_height="250dp"
+                android:overScrollMode="never"
                 android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/rvHour"
@@ -180,9 +185,9 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/avenir_next_medium"
                         android:gravity="center"
-                        android:textSize="16sp"
                         android:text="@string/button_cancel"
-                        android:textColor="@color/colorPrimary" />
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="16sp" />
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
@@ -205,9 +210,9 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/avenir_next_medium"
                         android:gravity="center"
-                        android:textSize="16sp"
                         android:text="@string/button_save"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
                 </androidx.cardview.widget.CardView>
 
             </LinearLayout>
