@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -85,9 +84,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initUI();
         initDateAndTimeData();
+        // минимальный год установлен 2015. можно переделать и создавать изначально массив начиная с текущего года
         startYearInArray = 2015;
         setCurrentDateAndTime();
-        setRVScrollListeners();
+        setRVScrollAndClickListeners();
     }
 
     @Override
@@ -110,24 +110,29 @@ public class MainActivity extends AppCompatActivity {
         soundId = sounds.load(this, R.raw.snap1, 1);
     }
 
-    // минимальный год установлен 2015. можно переделать и создавать изначально массив начиная с текущего года
     private void setCurrentDateAndTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+
         currentMinutePosition = calendar.get(Calendar.MINUTE);
         rvMinute.scrollToPosition(currentMinutePosition);
         minuteAdapter.changeItemAppearance(currentMinutePosition);
+
         currentHourPosition = calendar.get(Calendar.HOUR_OF_DAY);
         rvHour.scrollToPosition(currentHourPosition);
         hourAdapter.changeItemAppearance(currentHourPosition);
+
         currentYearPosition = calendar.get(Calendar.YEAR) - startYearInArray;
         rvYear.scrollToPosition(currentYearPosition);
         yearAdapter.changeItemAppearance(currentYearPosition);
+
         currentMonthPosition = calendar.get(Calendar.MONTH);
         rvMonth.scrollToPosition(currentMonthPosition);
         monthAdapter.changeItemAppearance(currentMonthPosition);
+
         currentDayPosition = calendar.get(Calendar.DAY_OF_MONTH) - 1;
         rvDay.scrollToPosition(currentDayPosition);
         resetDaysArray(currentMonthPosition, currentYearPosition, currentDayPosition);
+
         updateDateInHeader();
         updateTimeInHeader();
     }
@@ -283,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         dayAdapter.changeItemAppearance(dayPosition);
     }
 
-    private void setRVScrollListeners() {
+    private void setRVScrollAndClickListeners() {
         final Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         rvDay.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -399,6 +404,63 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //докручивает число в центр при клике на не выделенную строчку
+        dayAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
+            @Override
+            public void onPickerClick(int position) {
+                if (position > currentDayPosition + 2 && position < (days.size() - 2)){
+                    rvDay.smoothScrollToPosition(position+2);
+                } else if (position<currentDayPosition + 2 && position>1){
+                    rvDay.smoothScrollToPosition(position-2);
+                }
+            }
+        });
+
+        monthAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
+            @Override
+            public void onPickerClick(int position) {
+                if (position > currentMonthPosition + 2 && position < (months.size() - 2)){
+                    rvMonth.smoothScrollToPosition(position+2);
+                } else if (position<currentMonthPosition + 2 && position>1){
+                    rvMonth.smoothScrollToPosition(position-2);
+                }
+            }
+        });
+
+        yearAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
+            @Override
+            public void onPickerClick(int position) {
+                if (position > currentYearPosition + 2 && position < (years.size() - 2)){
+                    rvYear.smoothScrollToPosition(position+2);
+                } else if (position<currentYearPosition + 2 && position>1){
+                    rvYear.smoothScrollToPosition(position-2);
+                }
+            }
+        });
+
+        hourAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
+            @Override
+            public void onPickerClick(int position) {
+                if (position > currentHourPosition + 2 && position < (hours.size() - 2)){
+                    rvHour.smoothScrollToPosition(position+2);
+                } else if (position<currentHourPosition + 2 && position>1){
+                    rvHour.smoothScrollToPosition(position-2);
+                }
+            }
+        });
+
+        minuteAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
+            @Override
+            public void onPickerClick(int position) {
+                if (position > currentMinutePosition + 2 && position < (minutes.size() - 2)){
+                    rvMinute.smoothScrollToPosition(position+2);
+                } else if (position<currentMinutePosition + 2 && position>1){
+                    rvMinute.smoothScrollToPosition(position-2);
+                }
+            }
+        });
+
     }
 
     private void updateDateInHeader() {

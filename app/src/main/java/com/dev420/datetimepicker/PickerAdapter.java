@@ -14,6 +14,7 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
 
     private ArrayList<String> data;
     private int firstVisible = 0;
+    private OnPickerClickListener onPickerClickListener;
 
     public PickerAdapter() {
         this.data = new ArrayList<>();
@@ -21,6 +22,14 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
 
     public ArrayList<String> getData() {
         return data;
+    }
+
+    public interface OnPickerClickListener{
+        void onPickerClick(int position);
+    }
+
+    public void setOnPickerClickListener(OnPickerClickListener onPickerClickListener){
+        this.onPickerClickListener = onPickerClickListener;
     }
 
     public void setData(ArrayList<String> data) {
@@ -71,6 +80,14 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
         private PickerViewHolder(@NonNull View itemView) {
             super(itemView);
             tvDateOrTimeItem = itemView.findViewById(R.id.tvDateOrTimeItem);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (onPickerClickListener != null){
+                        onPickerClickListener.onPickerClick(getAdapterPosition());
+                    }
+                }
+            });
         }
     }
 }
