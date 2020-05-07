@@ -1,5 +1,6 @@
 package com.dev420.datetimepicker;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,7 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
     }
 
     public void setData(ArrayList<String> data) {
-        this.data.clear();
-        this.data.addAll(data);
+        this.data = data;
         notifyDataSetChanged();
     }
 
@@ -62,7 +62,6 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
     public void changeItemAppearance(int position) {
         if (firstVisible != position) {
             firstVisible = position;
-            notifyItemChanged(firstVisible);
             notifyDataSetChanged();
         }
     }

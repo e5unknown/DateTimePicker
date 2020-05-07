@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.SoundEffectConstants;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,6 +25,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final String TAG = "MainActivity";
 
     private LinearLayout llDate;
     private LinearLayout llTime;
@@ -50,17 +52,18 @@ public class MainActivity extends AppCompatActivity {
     private PickerAdapter hourAdapter;
     private PickerAdapter minuteAdapter;
 
+    private SnapHelper daySH;
+
     private ArrayList<String> days;
     private ArrayList<String> months;
     private ArrayList<String> years;
     private ArrayList<String> hours;
     private ArrayList<String> minutes;
 
-    private CardView buttonCancel;
-    private CardView buttonSave;
+    int startYearInArray;
 
-    //костыли или реализация щелчков
-    private int currentMinPosition;
+    //проверка изменения позиции для аккуратной реализация щелчков
+    private int currentMinutePosition;
     private int currentHourPosition;
     private int currentDayPosition;
     private int currentMonthPosition;
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initUI();
         initDateAndTimeData();
+        startYearInArray = 2015;
         setCurrentDateAndTime();
         Handler handler = new Handler();
         //Костыли, чтобы при прокручивании пикера до текущего времени не производилась куча щелчков
@@ -83,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         }, 500);
     }
 
-
     // минимальный год установлен 2015. можно переделать и создавать изначально массив начиная с текущего года
     private void setCurrentDateAndTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
@@ -92,17 +95,15 @@ public class MainActivity extends AppCompatActivity {
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         rvHour.scrollToPosition(currentHour);
         int currentYear = calendar.get(Calendar.YEAR);
-        //скролл сделал на случай, если понадобится DateTimePicker с прошлыми годами
-        int startYearInArray = 2015;
         rvYear.scrollToPosition(currentYear - startYearInArray);
         yearAdapter.changeItemAppearance(currentYear - startYearInArray);
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
         rvMonth.scrollToPosition(currentMonth - 1);
         monthAdapter.changeItemAppearance(currentMonth - 1);
-        generateDaysArray(currentMonth - 1, currentYear);
-        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
-        rvDay.scrollToPosition(currentDay - 1);
-        dayAdapter.changeItemAppearance(currentDay - 1);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH) - 1;
+        rvDay.scrollToPosition(currentDay);
+        Log.i(TAG, "dayPos, currentDay: " + currentDay);
+        resetDaysArray(currentMonth - 1, currentYear, currentDay);
         tvDate.setText(String.format(Locale.getDefault(), "%02d.%02d.%d", currentDay, currentMonth, currentYear));
         tvTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentHour, currentMinute));
     }
@@ -120,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
         rvYear = findViewById(R.id.rvYear);
         rvHour = findViewById(R.id.rvHour);
         rvMinute = findViewById(R.id.rvMinute);
-        buttonCancel = findViewById(R.id.buttonCancel);
-        buttonSave = findViewById(R.id.buttonSave);
+        CardView buttonCancel = findViewById(R.id.buttonCancel);
+        CardView buttonSave = findViewById(R.id.buttonSave);
         dayLM = new LinearLayoutManager(this);
         monthLM = new LinearLayoutManager(this);
         yearLM = new LinearLayoutManager(this);
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         rvYear.setAdapter(yearAdapter);
         rvHour.setAdapter(hourAdapter);
         rvMinute.setAdapter(minuteAdapter);
-        SnapHelper daySH = new LinearSnapHelper();
+        daySH = new LinearSnapHelper();
         SnapHelper monthSH = new LinearSnapHelper();
         SnapHelper yearSH = new LinearSnapHelper();
         SnapHelper hourSH = new LinearSnapHelper();
@@ -170,73 +171,81 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Clicked Cancel", Toast.LENGTH_SHORT).show();
             }
         });
+        //Получение выбранной даты/времени по клику на кнопку "Сохранить"
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                StringBuilder builder = new StringBuilder();
-                builder.append("Saved: ")
-                        .append(hours.get(hourLM.findFirstCompletelyVisibleItemPosition() + 2))
-                        .append(":")
-                        .append(minutes.get(minuteLM.findFirstCompletelyVisibleItemPosition() + 2))
-                        .append(" ")
-                        .append(days.get(dayLM.findFirstCompletelyVisibleItemPosition() + 2))
-                        .append(".")
-                        .append(months.get(monthLM.findFirstCompletelyVisibleItemPosition() + 2))
-                        .append(".")
-                        .append(years.get(yearLM.findFirstCompletelyVisibleItemPosition() + 2));
-                Toast.makeText(MainActivity.this, builder.toString(), Toast.LENGTH_SHORT).show();
+                String builder = "Saved: " +
+                        hours.get(hourLM.findFirstCompletelyVisibleItemPosition() + 2) +
+                        ":" +
+                        minutes.get(minuteLM.findFirstCompletelyVisibleItemPosition() + 2) +
+                        " " +
+                        days.get(dayLM.findFirstCompletelyVisibleItemPosition() + 2) +
+                        "." +
+                        months.get(monthLM.findFirstCompletelyVisibleItemPosition() + 2) +
+                        "." +
+                        years.get(yearLM.findFirstCompletelyVisibleItemPosition() + 2);
+                Toast.makeText(MainActivity.this, builder, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void initDateAndTimeData() {
-        months = new ArrayList<>(Arrays.asList("", "", "янв", "фев", "март", "апр", "май", "июнь", "июль", "авг", "сен", "окт", "нояб", "дек", "", ""));
-        years = new ArrayList<>(Arrays.asList("", ""));
-        hours = new ArrayList<>(Arrays.asList("", ""));
-        minutes = new ArrayList<>(Arrays.asList("", ""));
-
-        for (int i = 2015; i <= 2050; i++) {
-            years.add(Integer.toString(i));
+        days = new ArrayList<>(Arrays.asList("", ""));
+        for (int i = 1; i <= 31; i++) {
+            days.add(String.format(Locale.getDefault(), "%02d", i));
         }
-        years.add("");
-        years.add("");
+        days.add("");
+        days.add("");
+
+        hours = new ArrayList<>(Arrays.asList("", ""));
         for (int i = 0; i <= 23; i++) {
             hours.add(String.format(Locale.getDefault(), "%02d", i));
         }
         hours.add("");
         hours.add("");
+
+        minutes = new ArrayList<>(Arrays.asList("", ""));
         for (int i = 0; i <= 59; i++) {
             minutes.add(String.format(Locale.getDefault(), "%02d", i));
         }
         minutes.add("");
         minutes.add("");
+
+        months = new ArrayList<>(Arrays.asList("", "", "янв", "фев", "март", "апр", "май", "июнь", "июль", "авг", "сен", "окт", "нояб", "дек", "", ""));
+
+        years = new ArrayList<>(Arrays.asList("", ""));
+        for (int i = 2015; i <= 2050; i++) {
+            years.add(Integer.toString(i));
+        }
+        years.add("");
+        years.add("");
+
+        dayAdapter.setData(days);
         monthAdapter.setData(months);
         yearAdapter.setData(years);
         hourAdapter.setData(hours);
         minuteAdapter.setData(minutes);
-        generateDaysArray(0, 2020);
-        //init костыли
-        currentMinPosition = 0;
-        currentHourPosition = 0;
-        currentDayPosition = 0;
-        currentMonthPosition = 0;
-        currentYearPosition = 0;
     }
 
-    public void resetDaysArray() {
+    public void checkCurrentMonthYearAndResetDaysArray() {
         //к выдаче по месяцам не добавляем 2, т.к. при firstVisible == 0 будет выделен январь
         int monthPosition = monthLM.findFirstCompletelyVisibleItemPosition();
         //к выдаче по годам добавим 2, чтобы учесть 2 пустых элемента в массиве и получить верный год
-        int yearPosition = yearLM.findFirstCompletelyVisibleItemPosition() + 2;
-        int year = Integer.parseInt(years.get(yearPosition));
-        generateDaysArray(monthPosition, year);
+        int yearPosition = yearLM.findFirstCompletelyVisibleItemPosition();
+        View daySnapView = daySH.findSnapView(dayLM);
+        int dayPosition = dayLM.getPosition(daySnapView);
+        Log.i(TAG, "dayPos: " + dayPosition);
+        resetDaysArray(monthPosition, yearPosition + startYearInArray, dayPosition - 2);
     }
 
-    public void generateDaysArray(int monthPosition, int year) {
+    public void resetDaysArray(int currentMonth, int currentYear, int dayPosition) {
+        Log.i("WTF", "currentMonth " + currentMonth);
+        Log.i("WTF", "currentYear " + currentYear);
         int daysCount;
-        switch (monthPosition) {
+        switch (currentMonth) {
             case 1:
-                if ((year) % 4 == 0) {
+                if ((currentYear) % 4 == 0) {
                     daysCount = 29;
                 } else daysCount = 28;
                 break;
@@ -250,25 +259,51 @@ public class MainActivity extends AppCompatActivity {
                 daysCount = 31;
                 break;
         }
-        if (days == null || days.size() != daysCount+4) {
-            days = new ArrayList<>(Arrays.asList("", ""));
-            for (int i = 1; i <= daysCount; i++) {
-                days.add(String.format(Locale.getDefault(), "%02d", i));
+        if ((days.size() - 4) < daysCount) {
+            ArrayList<String> newDays = new ArrayList<>();
+            for (int i = days.size() - 3; i <= daysCount; i++) {
+                newDays.add(Integer.toString(i));
             }
-            days.add("");
-            days.add("");
-            dayAdapter.setData(days);
+            days.addAll(days.size() - 2, newDays);
+            Log.i("WTF+", days.size() + " " + daysCount + " " + newDays.toString());
+            dayAdapter.notifyItemRangeInserted(days.size() - 2, newDays.size());
+        } else if ((days.size() - 4) > daysCount) {
+            int startIndex = daysCount + 2;
+            int lastIndex = days.size() - 2;
+            int count = lastIndex - startIndex;
+            days.subList(startIndex, lastIndex).clear();
+            Log.i("WTF-", days.size() + " " + daysCount + " " + startIndex + " " + lastIndex + " " + count);
+            dayAdapter.notifyItemRangeRemoved(startIndex, count);
         }
+        Log.i(TAG, dayPosition+ " " + daysCount);
+        if (dayPosition + 1 > daysCount){
+            dayPosition = dayPosition - (dayPosition + 1 - daysCount);
+            Log.i(TAG, "new dayPos:"+dayPosition);
+        }
+        dayAdapter.changeItemAppearance(dayPosition);
     }
 
-
     private void setRVScrollListeners() {
+        //init костыли, чтобы он не отправлял по несколько раз в секунду обновление адаптера
+        currentMinutePosition = 0;
+        currentHourPosition = 0;
+        currentDayPosition = 0;
+        currentMonthPosition = 0;
+        currentYearPosition = 0;
         rvDay.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    Log.i(TAG, "IDLE");
+                }
+            }
+
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = dayLM.findFirstCompletelyVisibleItemPosition();
-                if (currentDayPosition != firstVisible){
+                if (currentDayPosition != firstVisible) {
                     currentDayPosition = firstVisible;
                     dayAdapter.changeItemAppearance(firstVisible);
                     recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
@@ -280,15 +315,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                //обновляем количество дней при изменении месяца
-                resetDaysArray();
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    checkCurrentMonthYearAndResetDaysArray();
+                    Log.i(TAG, "IDLE month");
+                }
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = monthLM.findFirstCompletelyVisibleItemPosition();
-                if (currentMonthPosition != firstVisible){
+                if (currentMonthPosition != firstVisible) {
                     currentMonthPosition = firstVisible;
                     monthAdapter.changeItemAppearance(firstVisible);
                     recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
@@ -300,19 +337,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                //обновляем количество дней при изменении года
-                resetDaysArray();
-
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    checkCurrentMonthYearAndResetDaysArray();
+                }
             }
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = yearLM.findFirstCompletelyVisibleItemPosition();
-                if (currentYearPosition != firstVisible){
+                if (currentYearPosition != firstVisible) {
                     currentYearPosition = firstVisible;
                     yearAdapter.changeItemAppearance(firstVisible);
                     recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
+                    checkCurrentMonthYearAndResetDaysArray();
                 }
             }
         });
@@ -322,7 +360,7 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = hourLM.findFirstCompletelyVisibleItemPosition();
-                if (currentHourPosition != firstVisible){
+                if (currentHourPosition != firstVisible) {
                     currentHourPosition = firstVisible;
                     hourAdapter.changeItemAppearance(firstVisible);
                     recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
@@ -336,8 +374,8 @@ public class MainActivity extends AppCompatActivity {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = minuteLM.findFirstCompletelyVisibleItemPosition();
-                if (currentMinPosition != firstVisible){
-                    currentMinPosition = firstVisible;
+                if (currentMinutePosition != firstVisible) {
+                    currentMinutePosition = firstVisible;
                     minuteAdapter.changeItemAppearance(firstVisible);
                     recyclerView.playSoundEffect(SoundEffectConstants.CLICK);
                 }
