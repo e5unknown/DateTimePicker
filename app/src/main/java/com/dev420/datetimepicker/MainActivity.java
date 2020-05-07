@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     int startYearInArray;
 
-    //проверка изменения позиции для аккуратной реализация щелчков
     private int currentMinutePosition;
     private int currentHourPosition;
     private int currentDayPosition;
@@ -116,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
         updateDateInHeader();
         updateTimeInHeader();
     }
-
 
     private void initUI() {
         llDate = findViewById(R.id.llDate);
@@ -255,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 newDays.add(Integer.toString(i));
             }
             days.addAll(days.size() - 2, newDays);
-            dayAdapter.notifyItemRangeInserted(days.size() - 2, newDays.size());
+            dayAdapter.notifyDataSetChanged();
         } else if ((days.size() - 4) > daysCount) {
             int startIndex = daysCount + 2;
             int lastIndex = days.size() - 2;
@@ -266,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, dayPosition+ " " + daysCount);
         if (dayPosition + 1 > daysCount){
             dayPosition = dayPosition - (dayPosition + 1 - daysCount);
-            Log.i(TAG, "new dayPos:"+dayPosition);
+            Log.i(TAG, "new dayPos:" + dayPosition);
         }
         dayAdapter.changeItemAppearance(dayPosition);
     }
