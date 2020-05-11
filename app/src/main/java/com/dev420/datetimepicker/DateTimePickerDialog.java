@@ -17,13 +17,14 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev420.datetimepicker.adapters.PickerViewPagerAdapter;
+import com.dev420.datetimepicker.callbacks.DatePickerCallback;
+import com.dev420.datetimepicker.callbacks.TimePickerCallback;
 
 public class DateTimePickerDialog extends DialogFragment implements TimePickerCallback, DatePickerCallback {
 

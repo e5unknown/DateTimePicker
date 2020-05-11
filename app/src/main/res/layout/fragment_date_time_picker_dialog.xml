@@ -17,8 +17,8 @@
             android:id="@+id/llDateAndTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/llDate"
@@ -81,6 +81,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -95,13 +96,15 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="155dp"
                 android:layout_marginEnd="20dp"
-                android:background="@color/colorPrimaryDark"/>
+                android:background="@color/colorPrimaryDark" />
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/viewPagerDateTimePicker"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"/>
+                android:layout_height="250dp"
+                android:overScrollMode="never"/>
         </FrameLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

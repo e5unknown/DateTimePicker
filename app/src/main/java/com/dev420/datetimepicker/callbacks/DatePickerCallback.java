@@ -1,4 +1,4 @@
-package com.dev420.datetimepicker;
+package com.dev420.datetimepicker.callbacks;
 
 public interface DatePickerCallback {
     public void updateDateFromPicker(String dateDDMMYYYY);
