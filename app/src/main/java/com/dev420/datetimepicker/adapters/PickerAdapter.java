@@ -1,4 +1,4 @@
-package com.dev420.datetimepicker;
+package com.dev420.datetimepicker.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.dev420.datetimepicker.R;
 
 import java.util.ArrayList;
 
