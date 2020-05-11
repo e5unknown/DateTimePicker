@@ -127,7 +127,7 @@ public class TimePickerFragment extends Fragment {
         updateTimeInHeader();
     }
 
-    private void vibrateSoundResponse() {
+    private void playSoundAndVibrate() {
         soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -145,7 +145,7 @@ public class TimePickerFragment extends Fragment {
                 if (currentHourPosition != firstVisible) {
                     currentHourPosition = firstVisible;
                     hourAdapter.changeItemAppearance(firstVisible);
-                    vibrateSoundResponse();
+                    playSoundAndVibrate();
                     updateTimeInHeader();
                 }
             }
@@ -160,7 +160,7 @@ public class TimePickerFragment extends Fragment {
                 if (currentMinutePosition != firstVisible) {
                     currentMinutePosition = firstVisible;
                     minuteAdapter.changeItemAppearance(firstVisible);
-                    vibrateSoundResponse();
+                    playSoundAndVibrate();
                     updateTimeInHeader();
                 }
             }

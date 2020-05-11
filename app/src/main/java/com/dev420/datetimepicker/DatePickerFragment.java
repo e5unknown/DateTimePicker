@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.SnapHelper;
 
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class DatePickerFragment extends Fragment {
+
+    private final int DAY = 0;
+    private final int MONTH = 1;
+    private final int YEAR = 2;
 
     private RecyclerView rvDay;
     private RecyclerView rvMonth;
@@ -53,6 +58,7 @@ public class DatePickerFragment extends Fragment {
     private int currentDayPosition;
     private int currentMonthPosition;
     private int currentYearPosition;
+    private int[] pickerPosition;
 
     private DatePickerCallback dateCallback;
     private SoundPool soundPool;
@@ -126,11 +132,14 @@ public class DatePickerFragment extends Fragment {
         yearAdapter.setData(years);
     }
 
-    private void resetDaysArray(int currentMonth, int currentYear, int dayPosition) {
+    private void resetDaysCount() {
+        Log.i("WTF", pickerPosition[0]+"");
+        Log.i("WTF", pickerPosition[1]+"");
+        Log.i("WTF", pickerPosition[2]+"");
         int daysCount;
-        switch (currentMonth) {
+        switch (pickerPosition[MONTH]) {
             case 1:
-                if ((currentYear) % 4 == 0) {
+                if ((pickerPosition[YEAR]+startYearInArray) % 4 == 0) {
                     daysCount = 29;
                 } else daysCount = 28;
                 break;
@@ -158,31 +167,32 @@ public class DatePickerFragment extends Fragment {
             days.subList(startIndex, lastIndex).clear();
             dayAdapter.notifyItemRangeRemoved(startIndex, count);
         }
-        if (dayPosition + 1 > daysCount) {
-            dayPosition = dayPosition - (dayPosition + 1 - daysCount);
+        if (pickerPosition[DAY] + 1 > daysCount) {
+            pickerPosition[DAY] = pickerPosition[DAY] - (pickerPosition[DAY] + 1 - daysCount);
         }
-        dayAdapter.changeItemAppearance(dayPosition);
+        dayAdapter.changeItemAppearance(pickerPosition[DAY]);
     }
 
     private void setCurrentDateAndTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        pickerPosition = new int[3];
 
-        currentYearPosition = calendar.get(Calendar.YEAR) - startYearInArray;
-        rvYear.scrollToPosition(currentYearPosition);
-        yearAdapter.changeItemAppearance(currentYearPosition);
+        pickerPosition[YEAR] = calendar.get(Calendar.YEAR) - startYearInArray;
+        rvYear.scrollToPosition(pickerPosition[YEAR]);
+        yearAdapter.changeItemAppearance(pickerPosition[YEAR]);
 
-        currentMonthPosition = calendar.get(Calendar.MONTH);
-        rvMonth.scrollToPosition(currentMonthPosition);
-        monthAdapter.changeItemAppearance(currentMonthPosition);
+        pickerPosition[MONTH] = calendar.get(Calendar.MONTH);
+        rvMonth.scrollToPosition(pickerPosition[MONTH]);
+        monthAdapter.changeItemAppearance(pickerPosition[MONTH]);
 
-        currentDayPosition = calendar.get(Calendar.DAY_OF_MONTH) - 1;
-        rvDay.scrollToPosition(currentDayPosition);
-        resetDaysArray(currentMonthPosition, currentYearPosition, currentDayPosition);
+        pickerPosition[DAY] = calendar.get(Calendar.DAY_OF_MONTH) - 1;
+        rvDay.scrollToPosition(pickerPosition[DAY]);
+        resetDaysCount();
 
         updateDateInHeader();
     }
 
-    private void vibrateSoundResponse() {
+    private void playSoundAndVibrate() {
         soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -198,10 +208,10 @@ public class DatePickerFragment extends Fragment {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = dayLM.getPosition(daySH.findSnapView(dayLM)) - 2;
-                if (currentDayPosition != firstVisible) {
-                    currentDayPosition = firstVisible;
+                if (pickerPosition[DAY] != firstVisible) {
+                    pickerPosition[DAY] = firstVisible;
                     dayAdapter.changeItemAppearance(firstVisible);
-                    vibrateSoundResponse();
+                    playSoundAndVibrate();
                     updateDateInHeader();
                 }
             }
@@ -212,8 +222,7 @@ public class DatePickerFragment extends Fragment {
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    resetDaysArray(currentMonthPosition,
-                            currentYearPosition + startYearInArray, currentDayPosition);
+                    resetDaysCount();
                 }
             }
 
@@ -221,10 +230,10 @@ public class DatePickerFragment extends Fragment {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = monthLM.getPosition(monthSH.findSnapView(monthLM)) - 2;
-                if (currentMonthPosition != firstVisible) {
-                    currentMonthPosition = firstVisible;
+                if (pickerPosition[MONTH] != firstVisible) {
+                    pickerPosition[MONTH] = firstVisible;
                     monthAdapter.changeItemAppearance(firstVisible);
-                    vibrateSoundResponse();
+                    playSoundAndVibrate();
                     updateDateInHeader();
                 }
             }
@@ -235,8 +244,7 @@ public class DatePickerFragment extends Fragment {
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    resetDaysArray(currentMonthPosition,
-                            currentYearPosition + startYearInArray, currentDayPosition);
+                    resetDaysCount();
                 }
             }
 
@@ -244,10 +252,10 @@ public class DatePickerFragment extends Fragment {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int firstVisible = yearLM.getPosition(yearSH.findSnapView(yearLM)) - 2;
-                if (currentYearPosition != firstVisible) {
-                    currentYearPosition = firstVisible;
+                if (pickerPosition[YEAR] != firstVisible) {
+                    pickerPosition[YEAR] = firstVisible;
                     yearAdapter.changeItemAppearance(firstVisible);
-                    vibrateSoundResponse();
+                    playSoundAndVibrate();
                     updateDateInHeader();
                 }
             }
@@ -257,9 +265,9 @@ public class DatePickerFragment extends Fragment {
         dayAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
             @Override
             public void onPickerClick(int position) {
-                if (position > currentDayPosition + 2 && position < (days.size() - 2)) {
+                if (position > pickerPosition[DAY] + 2 && position < (days.size() - 2)) {
                     rvDay.smoothScrollToPosition(position + 2);
-                } else if (position < currentDayPosition + 2 && position > 1) {
+                } else if (position < pickerPosition[DAY] + 2 && position > 1) {
                     rvDay.smoothScrollToPosition(position - 2);
                 }
             }
@@ -268,9 +276,9 @@ public class DatePickerFragment extends Fragment {
         monthAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
             @Override
             public void onPickerClick(int position) {
-                if (position > currentMonthPosition + 2 && position < (months.size() - 2)) {
+                if (position > pickerPosition[MONTH] + 2 && position < (months.size() - 2)) {
                     rvMonth.smoothScrollToPosition(position + 2);
-                } else if (position < currentMonthPosition + 2 && position > 1) {
+                } else if (position < pickerPosition[MONTH] + 2 && position > 1) {
                     rvMonth.smoothScrollToPosition(position - 2);
                 }
             }
@@ -279,9 +287,9 @@ public class DatePickerFragment extends Fragment {
         yearAdapter.setOnPickerClickListener(new PickerAdapter.OnPickerClickListener() {
             @Override
             public void onPickerClick(int position) {
-                if (position > currentYearPosition + 2 && position < (years.size() - 2)) {
+                if (position > pickerPosition[YEAR] + 2 && position < (years.size() - 2)) {
                     rvYear.smoothScrollToPosition(position + 2);
-                } else if (position < currentYearPosition + 2 && position > 1) {
+                } else if (position < pickerPosition[MONTH] + 2 && position > 1) {
                     rvYear.smoothScrollToPosition(position - 2);
                 }
             }
@@ -290,8 +298,8 @@ public class DatePickerFragment extends Fragment {
     }
 
     private String getDateOnPicker(){
-        return String.format(Locale.getDefault(), "%02d.%02d.%02d", currentDayPosition + 1
-                , currentMonthPosition + 1, currentYearPosition + startYearInArray);
+        return String.format(Locale.getDefault(), "%02d.%02d.%02d", pickerPosition[DAY] + 1
+                , pickerPosition[MONTH] + 1, pickerPosition[YEAR] + startYearInArray);
     }
 
     private void updateDateInHeader() {
