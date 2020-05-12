@@ -1,8 +1,5 @@
 package com.dev420.datetimepicker.fragments;
 
-import android.content.Context;
-import android.media.SoundPool;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;

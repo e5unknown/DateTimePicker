@@ -1,7 +1,5 @@
 package com.dev420.datetimepicker.fragments;
 
-import android.content.Context;
-import android.media.SoundPool;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,7 +9,6 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
