@@ -1,4 +1,4 @@
-package com.dev420.datetimepicker;
+package com.dev420.datetimepicker.fragments;
 
 import android.content.Context;
 import android.media.SoundPool;
@@ -18,8 +18,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dev420.datetimepicker.R;
 import com.dev420.datetimepicker.adapters.PickerAdapter;
-import com.dev420.datetimepicker.callbacks.DatePickerCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +53,10 @@ public class DatePickerFragment extends Fragment {
 
     public DatePickerFragment(SoundPool soundPool) {
         this.soundPool = soundPool;
+    }
+
+    public interface DatePickerCallback {
+        public void updateDateFromPicker(String dateDDMMYYYY);
     }
 
     @Override

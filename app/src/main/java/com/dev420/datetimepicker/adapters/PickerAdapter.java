@@ -22,10 +22,6 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
         this.data = new ArrayList<>();
     }
 
-    public ArrayList<String> getData() {
-        return data;
-    }
-
     public interface OnPickerClickListener{
         void onPickerClick(int position);
     }
@@ -59,6 +55,10 @@ public class PickerAdapter extends RecyclerView.Adapter<PickerAdapter.PickerView
         }
         if (position == firstVisible + 2) {
             holder.tvDateOrTimeItem.setAlpha(1f);
+            holder.tvDateOrTimeItem.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimary));
+        }
+        if (position == firstVisible - 1 || position == firstVisible + 5) {
+            holder.tvDateOrTimeItem.setAlpha(0.1f);
             holder.tvDateOrTimeItem.setTextColor(holder.itemView.getResources().getColor(R.color.colorPrimary));
         }
     }

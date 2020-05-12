@@ -1,6 +1,5 @@
 package com.dev420.datetimepicker.adapters;
 
-import android.content.Context;
 import android.media.SoundPool;
 
 import androidx.annotation.NonNull;
@@ -8,9 +7,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.dev420.datetimepicker.DatePickerFragment;
-import com.dev420.datetimepicker.DateTimePickerDialog;
-import com.dev420.datetimepicker.TimePickerFragment;
+import com.dev420.datetimepicker.fragments.DatePickerFragment;
+import com.dev420.datetimepicker.fragments.TimePickerFragment;
 
 public class PickerViewPagerAdapter extends FragmentPagerAdapter {
 

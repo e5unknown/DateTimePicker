@@ -1,4 +1,4 @@
-package com.dev420.datetimepicker;
+package com.dev420.datetimepicker.fragments;
 
 import android.content.Context;
 import android.media.SoundPool;
@@ -18,8 +18,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dev420.datetimepicker.R;
 import com.dev420.datetimepicker.adapters.PickerAdapter;
-import com.dev420.datetimepicker.callbacks.TimePickerCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +58,11 @@ public class TimePickerFragment extends Fragment {
         this.minuteStep = minuteStep;
         this.soundPool = soundPool;
     }
+
+    public interface TimePickerCallback {
+        public void updateTimeFromPicker(String timeHHMM);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

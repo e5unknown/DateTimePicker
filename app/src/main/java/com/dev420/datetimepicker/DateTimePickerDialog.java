@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -23,10 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev420.datetimepicker.adapters.PickerViewPagerAdapter;
-import com.dev420.datetimepicker.callbacks.DatePickerCallback;
-import com.dev420.datetimepicker.callbacks.TimePickerCallback;
+import com.dev420.datetimepicker.fragments.DatePickerFragment;
+import com.dev420.datetimepicker.fragments.TimePickerFragment;
 
-public class DateTimePickerDialog extends DialogFragment implements TimePickerCallback, DatePickerCallback {
+public class DateTimePickerDialog extends DialogFragment implements TimePickerFragment.TimePickerCallback, DatePickerFragment.DatePickerCallback {
 
     private LinearLayout llDate;
     private LinearLayout llTime;
@@ -96,8 +97,8 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerCa
         ivTime = view.findViewById(R.id.ivTime);
         tvDate = view.findViewById(R.id.tvDate);
         tvTime = view.findViewById(R.id.tvTime);
-        CardView buttonCancel = view.findViewById(R.id.buttonCancel);
-        CardView buttonSave = view.findViewById(R.id.buttonSave);
+        AppCompatButton buttonCancel = view.findViewById(R.id.buttonCancel);
+        AppCompatButton buttonSave = view.findViewById(R.id.buttonSave);
         llDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
