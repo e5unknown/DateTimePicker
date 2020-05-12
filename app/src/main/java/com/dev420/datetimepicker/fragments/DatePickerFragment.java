@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,23 +38,19 @@ public class DatePickerFragment extends Fragment {
     private int[] pickerPosition = new int[3];
 
     private DatePickerCallback dateCallback;
-    private SoundPool soundPool;
-    private int soundId;
-    private Vibrator vibrator;
 
     private ArrayList[] dateData = new ArrayList[3];
     private ArrayList<String> days;
     private ArrayList<String> months;
     private ArrayList<String> years;
 
-    int firstYearInArray = 2015;
+    private int firstYearInArray = 2015;
 
-    public DatePickerFragment(SoundPool soundPool) {
-        this.soundPool = soundPool;
+    public DatePickerFragment() {
     }
 
     public interface DatePickerCallback {
-        public void updateDateFromPicker(String dateDDMMYYYY);
+        public void updateDateFromPicker(String dateDDMMYYYY, boolean playSoundAndVibrate);
     }
 
     @Override
@@ -64,8 +58,6 @@ public class DatePickerFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_picker, container, false);
         dateCallback = (DatePickerCallback) getParentFragment();
-        soundId = soundPool.load(getContext(), R.raw.snap1, 1);
-        vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         initViews(view);
         createDateArrays();
         setCurrentDateAndTime();
@@ -95,8 +87,14 @@ public class DatePickerFragment extends Fragment {
         days.add("");
         days.add("");
 
-        months = new ArrayList<>(Arrays.asList("", "", "янв", "фев", "март", "апр", "май", "июнь",
-                "июль", "авг", "сен", "окт", "нояб", "дек", "", ""));
+        months = new ArrayList<>(Arrays.asList("", "",
+                getResources().getString(R.string.month_jan), getResources().getString(R.string.month_feb),
+                getResources().getString(R.string.month_mar), getResources().getString(R.string.month_apr),
+                getResources().getString(R.string.month_may), getResources().getString(R.string.month_jun),
+                getResources().getString(R.string.month_jul), getResources().getString(R.string.month_aug),
+                getResources().getString(R.string.month_sep), getResources().getString(R.string.month_oct),
+                getResources().getString(R.string.month_nov), getResources().getString(R.string.month_dec),
+                "", ""));
 
         years = new ArrayList<>(Arrays.asList("", ""));
         for (int i = firstYearInArray; i <= 2050; i++) {
@@ -163,16 +161,7 @@ public class DatePickerFragment extends Fragment {
         rv[DAY].scrollToPosition(pickerPosition[DAY]);
         resetDaysCount();
 
-        updateDateInHeader();
-    }
-
-    private void playSoundAndVibrate() {
-        soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            vibrator.vibrate(25);
-        }
+        updateDateInHeader(false);
     }
 
     private void setRVScrollAndClickListeners() {
@@ -190,8 +179,7 @@ public class DatePickerFragment extends Fragment {
                     if (pickerPosition[finalI] != firstVisible) {
                         pickerPosition[finalI] = firstVisible;
                         pickerAdapters[finalI].changeItemAppearance(firstVisible);
-                        playSoundAndVibrate();
-                        updateDateInHeader();
+                        updateDateInHeader(true);
                     }
                 }
             });
@@ -228,8 +216,8 @@ public class DatePickerFragment extends Fragment {
                 , pickerPosition[MONTH] + 1, pickerPosition[YEAR] + firstYearInArray);
     }
 
-    private void updateDateInHeader() {
-        dateCallback.updateDateFromPicker(getDateOnPicker());
+    private void updateDateInHeader(boolean playSoundAndVibrate) {
+        dateCallback.updateDateFromPicker(getDateOnPicker(), playSoundAndVibrate);
     }
 
 }

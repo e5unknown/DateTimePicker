@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="picker_recycler_height">250dp</dimen>
-    <dimen name="picker_cell">50dp</dimen>
-
     <dimen name="margin_padding_size_small">8dp</dimen>
     <dimen name="margin_padding_size_medium">16dp</dimen>
     <dimen name="margin_padding_size_large">24dp</dimen>
-
-    <dimen name="icon_small">20dp</dimen>
-
-    <dimen name="dialog_button_height">35dp</dimen>
 
     <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_large">20sp</dimen>
     <dimen name="text_size_xlarge">24sp</dimen>
+
+    <dimen name="picker_recycler_height">250dp</dimen>
+    <dimen name="picker_cell">50dp</dimen>
+
+    <dimen name="icon_small">20dp</dimen>
+
+    <dimen name="dialog_button_height">35dp</dimen>
 
 </resources>

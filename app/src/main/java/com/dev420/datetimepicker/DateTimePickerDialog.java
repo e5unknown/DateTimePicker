@@ -1,20 +1,24 @@
 package com.dev420.datetimepicker;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +40,9 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
     private TextView tvDate;
     private TextView tvTime;
 
-    private SoundPool sounds;
+    private SoundPool soundPool;
+    private int soundId;
+    private Vibrator vibrator;
 
     private ViewPager viewPager;
 
@@ -44,7 +50,6 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.Theme_AppCompat_Dialog_Alert);
-        createSoundPool();
     }
 
     @Nullable
@@ -55,7 +60,7 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         PickerViewPagerAdapter pagerAdapter = new PickerViewPagerAdapter(getChildFragmentManager(),
-                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT, sounds);
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager = view.findViewById(R.id.viewPagerDateTimePicker);
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -77,6 +82,7 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
             }
         });
         initUI(view);
+        createSoundPool();
         return view;
     }
 
@@ -85,9 +91,11 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
                 .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
-        sounds = new SoundPool.Builder()
+        soundPool = new SoundPool.Builder()
                 .setAudioAttributes(attributes)
                 .build();
+        soundId = soundPool.load(getContext(), R.raw.snap1, 1);
+        vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     private void initUI(View view) {
@@ -148,20 +156,32 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
         tvDate.setTextColor(getResources().getColor(R.color.textColorPrimary));
     }
 
-    @Override
-    public void updateTimeFromPicker(String timeHHMM) {
-        tvTime.setText(timeHHMM);
+    private void playSoundAndVibrate() {
+        soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            vibrator.vibrate(25);
+        }
     }
 
     @Override
-    public void updateDateFromPicker(String dateDDMMYYYY) {
+    public void updateDateFromPicker(String dateDDMMYYYY, boolean playSoundAndVibrate) {
+        if (playSoundAndVibrate) playSoundAndVibrate();
         tvDate.setText(dateDDMMYYYY);
+    }
+
+    @Override
+    public void updateTimeFromPicker(String timeHHMM, boolean playSoundAndVibrate) {
+        if (playSoundAndVibrate) playSoundAndVibrate();
+        tvTime.setText(timeHHMM);
+
     }
 
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);
-        sounds.release();
-        sounds = null;
+        soundPool.release();
+        soundPool = null;
     }
 }

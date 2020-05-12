@@ -5,4 +5,20 @@
     <string name="button_cancel">Отмена</string>
     <string name="button_save">Сохранить</string>
 
+    <string name="month_jan">янв</string>
+    <string name="month_feb">фев</string>
+    <string name="month_mar">март</string>
+    <string name="month_apr">апр</string>
+    <string name="month_may">май</string>
+    <string name="month_jun">июнь</string>
+    <string name="month_jul">июль</string>
+    <string name="month_aug">авг</string>
+    <string name="month_sep">сен</string>
+    <string name="month_oct">окт</string>
+    <string name="month_nov">нояб</string>
+    <string name="month_dec">дек</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

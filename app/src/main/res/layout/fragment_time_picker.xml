@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/picker_recycler_height"
+    android:background="@drawable/pager_bg_lines"
     tools:context=".fragments.TimePickerFragment">
 
     <androidx.recyclerview.widget.RecyclerView

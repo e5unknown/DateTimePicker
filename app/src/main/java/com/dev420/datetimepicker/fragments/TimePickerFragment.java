@@ -2,7 +2,6 @@ package com.dev420.datetimepicker.fragments;
 
 import android.content.Context;
 import android.media.SoundPool;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,8 +11,8 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,9 +38,6 @@ public class TimePickerFragment extends Fragment {
     private int[] pickerPosition = new int[2];
 
     private TimePickerCallback timeCallback;
-    private SoundPool soundPool;
-    private int soundId;
-    private Vibrator vibrator;
 
     private ArrayList[] timeData = new ArrayList[2];
     private ArrayList<String> hours;
@@ -49,32 +45,35 @@ public class TimePickerFragment extends Fragment {
 
     private int minuteStep = 1;
 
-    public TimePickerFragment(SoundPool soundPool) {
-        this.soundPool = soundPool;
+    public TimePickerFragment() {
     }
 
     //конструктор для создания минутного списка с назначенным шагом
-    public TimePickerFragment(int minuteStep, SoundPool soundPool) {
-        this.minuteStep = minuteStep;
-        this.soundPool = soundPool;
+    public static TimePickerFragment newInstance(int minuteStep) {
+        TimePickerFragment fragment = new TimePickerFragment();
+        Bundle args = new Bundle();
+        args.putInt("minuteStep", minuteStep);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public interface TimePickerCallback {
-        public void updateTimeFromPicker(String timeHHMM);
+        public void updateTimeFromPicker(String timeHHMM, boolean playSoundAndVibrate);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_time_picker, container, false);
+        if (getArguments() != null){
+            minuteStep = getArguments().getInt("minuteStep");
+            Log.i("WTF", minuteStep+"");
+        }
         timeCallback = (TimePickerCallback) getParentFragment();
-        soundId = soundPool.load(getContext(), R.raw.snap1, 1);
-        vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         initViews(view);
         createTimeArrays();
-        setCurrentDateAndTime();
         setRVScrollAndClickListeners();
+        setCurrentDateAndTime();
         return view;
     }
 
@@ -121,16 +120,7 @@ public class TimePickerFragment extends Fragment {
         rv[HOUR].scrollToPosition(pickerPosition[HOUR]);
         pickerAdapters[HOUR].changeItemAppearance(pickerPosition[HOUR]);
 
-        updateTimeInHeader();
-    }
-
-    private void playSoundAndVibrate() {
-        soundPool.play(soundId, 0.3f, 0.3f, 1, 0, 1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            vibrator.vibrate(25);
-        }
+        updateTimeInHeader(false);
     }
 
     private void setRVScrollAndClickListeners() {
@@ -147,8 +137,7 @@ public class TimePickerFragment extends Fragment {
                     if (pickerPosition[finalI] != firstVisible) {
                         pickerPosition[finalI] = firstVisible;
                         pickerAdapters[finalI].changeItemAppearance(firstVisible);
-                        playSoundAndVibrate();
-                        updateTimeInHeader();
+                        updateTimeInHeader(true);
                     }
                 }
             });
@@ -173,7 +162,7 @@ public class TimePickerFragment extends Fragment {
                 , pickerPosition[MINUTE]);
     }
 
-    private void updateTimeInHeader() {
-        timeCallback.updateTimeFromPicker(getTimeOnPicker());
+    private void updateTimeInHeader(boolean playSoundAndVibrate) {
+        timeCallback.updateTimeFromPicker(getTimeOnPicker(), playSoundAndVibrate);
     }
 }
