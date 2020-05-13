@@ -10,17 +10,27 @@ import com.dev420.datetimepicker.fragments.TimePickerFragment;
 
 public class PickerViewPagerAdapter extends FragmentPagerAdapter {
 
+    private Boolean blockDatePicker;
+    private int minuteStep;
+
     public PickerViewPagerAdapter(@NonNull FragmentManager fm, int behavior) {
         super(fm, behavior);
     }
 
+    public void setParameters(boolean blockDatePicker, int minuteStep) {
+        this.blockDatePicker = blockDatePicker;
+        this.minuteStep = minuteStep;
+    }
+
+
+
     @NonNull
     @Override
     public Fragment getItem(int position) {
-        if (position == 0){
-            return new DatePickerFragment();
+        if (position == 0) {
+            return DatePickerFragment.newInstance(blockDatePicker);
         } else {
-            return new TimePickerFragment();
+            return TimePickerFragment.newInstance(minuteStep);
         }
     }
 

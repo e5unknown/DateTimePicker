@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +63,6 @@ public class TimePickerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_time_picker, container, false);
         if (getArguments() != null){
             minuteStep = getArguments().getInt("minuteStep");
-            Log.i("WTF", minuteStep+"");
         }
         timeCallback = (TimePickerCallback) getParentFragment();
         initViews(view);
@@ -109,7 +107,7 @@ public class TimePickerFragment extends Fragment {
     private void setCurrentDateAndTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
 
-        pickerPosition[MINUTE] = calendar.get(Calendar.MINUTE);
+        pickerPosition[MINUTE] = calendar.get(Calendar.MINUTE) / minuteStep;
         rv[MINUTE].scrollToPosition(pickerPosition[MINUTE]);
         pickerAdapters[MINUTE].changeItemAppearance(pickerPosition[MINUTE]);
 
@@ -155,8 +153,8 @@ public class TimePickerFragment extends Fragment {
     }
 
     private String getTimeOnPicker() {
-        return String.format(Locale.getDefault(), "%02d:%02d", pickerPosition[HOUR]
-                , pickerPosition[MINUTE]);
+        return String.format(Locale.getDefault(), "%02d:%s", pickerPosition[HOUR]
+                , minutes.get(pickerPosition[MINUTE] + 2));
     }
 
     private void updateTimeInHeader(boolean playSoundAndVibrate) {

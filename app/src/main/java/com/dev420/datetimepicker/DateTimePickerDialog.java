@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -44,11 +45,22 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
     private Vibrator vibrator;
 
     private ViewPager viewPager;
+    private Boolean blockDatePicker;
+    private int minuteStep;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.Theme_AppCompat_Dialog_Alert);
+    }
+
+    public static DateTimePickerDialog newInstance(boolean blockDatePicker, int minuteStep) {
+        DateTimePickerDialog f = new DateTimePickerDialog();
+        Bundle args = new Bundle();
+        args.putBoolean("blockDatePicker", blockDatePicker);
+        args.putInt("minuteStep", minuteStep);
+        f.setArguments(args);
+        return f;
     }
 
     @Nullable
@@ -58,8 +70,13 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
         if (getDialog() != null && getDialog().getWindow() != null) {
             getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+        if (getArguments() != null){
+            minuteStep = getArguments().getInt("minuteStep");
+            blockDatePicker = getArguments().getBoolean("blockDatePicker");
+        }
         PickerViewPagerAdapter pagerAdapter = new PickerViewPagerAdapter(getChildFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        pagerAdapter.setParameters(blockDatePicker, minuteStep);
         viewPager = view.findViewById(R.id.viewPagerDateTimePicker);
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -81,6 +98,9 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
             }
         });
         initUI(view);
+        if (blockDatePicker){
+            viewPager.setCurrentItem(1);
+        }
         createSoundPool();
         return view;
     }
@@ -182,5 +202,10 @@ public class DateTimePickerDialog extends DialogFragment implements TimePickerFr
         super.onDismiss(dialog);
         soundPool.release();
         soundPool = null;
+    }
+
+    @Override
+    public void show(@NonNull FragmentManager manager, @Nullable String tag) {
+        super.show(manager, tag);
     }
 }

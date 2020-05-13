@@ -42,8 +42,17 @@ public class DatePickerFragment extends Fragment {
     private ArrayList<String> years;
 
     private int firstYearInArray = 2015;
+    private boolean blockDatePicker = false;
 
     public DatePickerFragment() {
+    }
+
+    public static DatePickerFragment newInstance(boolean blockDatePicker) {
+        DatePickerFragment fragment = new DatePickerFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("blockDatePicker", blockDatePicker);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public interface DatePickerCallback {
@@ -55,10 +64,15 @@ public class DatePickerFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_picker, container, false);
         dateCallback = (DatePickerCallback) getParentFragment();
+        if (getArguments() != null){
+            blockDatePicker = getArguments().getBoolean("blockDatePicker");
+        }
         initViews(view);
         createDateArrays();
         setCurrentDateAndTime();
-        setRVScrollAndClickListeners();
+        if (!blockDatePicker){
+            setRVScrollAndClickListeners();
+        }
         return view;
     }
 
@@ -67,7 +81,16 @@ public class DatePickerFragment extends Fragment {
         rv[MONTH] = view.findViewById(R.id.rvMonth);
         rv[YEAR] = view.findViewById(R.id.rvYear);
         for (int i = 0; i<=2; i++){
-            layoutManagers[i] = new LinearLayoutManager(getContext());
+            if (!blockDatePicker){
+                layoutManagers[i] = new LinearLayoutManager(getContext());
+            } else{
+                layoutManagers[i] = new LinearLayoutManager(getContext()){
+                    @Override
+                    public boolean canScrollVertically() {
+                        return false;
+                    }
+                };
+            }
             rv[i].setLayoutManager(layoutManagers[i]);
             pickerAdapters[i] = new PickerAdapter();
             rv[i].setAdapter(pickerAdapters[i]);

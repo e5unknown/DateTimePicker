@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void onClickOpenDialog2(View view) {
-        DialogFragment dialog = new DateTimePickerDialog();
+        DialogFragment dialog = DateTimePickerDialog.newInstance(false, 5);
         dialog.show(getSupportFragmentManager(), "dateTimePicker");
     }
 
